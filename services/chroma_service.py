@@ -119,6 +119,20 @@ def search_movies(
     # la construye sola
     count = collection.count()
 
+    embedding = get_embedding(query)
+
+    results = collection.query(
+        query_embeddings=[embedding],
+        n_results=n_results
+    )
+
+    print(results)
+
+    return results
+
+
+
+"""
     if count == 0:
 
         print(
@@ -139,4 +153,4 @@ def search_movies(
         n_results=n_results
     )
 
-    return results
+    return results"""
