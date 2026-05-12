@@ -1,6 +1,21 @@
 
 import streamlit as st
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Prioriza Streamlit Secrets, sino usa .env local
+TMDB_API_KEY = st.secrets.get(
+    "TMDB_API_KEY",
+    os.getenv("TMDB_API_KEY")
+)
+
+OPENAI_API_KEY = st.secrets.get(
+    "OPENAI_API_KEY",
+    os.getenv("OPENAI_API_KEY")
+)
 import sys
 from pathlib import Path
 
