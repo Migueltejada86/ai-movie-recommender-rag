@@ -17,8 +17,6 @@ __pycache__/
 *.db
 *.sqlite3
 
-# Vector DB
-chroma_db/
 
 # IDE
 .vscode/
