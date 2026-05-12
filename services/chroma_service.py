@@ -1,10 +1,31 @@
+from pathlib import Path
 import chromadb
 
-from services.embedding_service import get_embedding
-from services.tmdb_client import get_popular_movies
+from services.embedding_service import (
+    get_embedding
+)
+
+from services.tmdb_client import (
+    get_popular_movies
+)
+
+# ==========================
+# PATH ABSOLUTO
+# ==========================
+
+BASE_DIR = (
+    Path(__file__)
+    .resolve()
+    .parent
+    .parent
+)
+
+CHROMA_PATH = (
+    BASE_DIR / "chroma_db"
+)
 
 client = chromadb.PersistentClient(
-    path="chroma_db"
+    path=str(CHROMA_PATH)
 )
 
 collection = client.get_or_create_collection(
@@ -12,31 +33,66 @@ collection = client.get_or_create_collection(
 )
 
 
+# ==========================
+# BUILD DB
+# ==========================
+
 def build_chroma_collection():
 
     movies = get_popular_movies()
 
     for movie in movies:
 
-        title = movie.get("title", "")
+        movie_id = str(movie["id"])
 
-        print(f"Guardando: {title}")
+        # Evita duplicados
+        exists = collection.get(
+            ids=[movie_id]
+        )
 
-        overview = movie.get("overview", "")
+        if exists["ids"]:
+            continue
+
+        title = movie.get(
+            "title",
+            ""
+        )
+
+        print(
+            f"Guardando: {title}"
+        )
+
+        overview = movie.get(
+            "overview",
+            ""
+        )
+
         if not overview:
             continue
-        poster_path = movie.get("poster_path")
 
-        rating = movie.get("vote_average")
+        poster_path = movie.get(
+            "poster_path"
+        )
 
-        release_date = movie.get("release_date")
+        rating = movie.get(
+            "vote_average"
+        )
 
-        text = f"{title}. {overview}"
+        release_date = movie.get(
+            "release_date"
+        )
 
-        embedding = get_embedding(text)
+        text = (
+            f"{title}. "
+            f"{overview}"
+        )
+
+        embedding = get_embedding(
+            text
+        )
 
         collection.add(
-            ids=[str(movie["id"])],
+            ids=[movie_id],
             embeddings=[embedding],
             documents=[overview],
             metadatas=[{
@@ -50,12 +106,36 @@ def build_chroma_collection():
     print("✅ ChromaDB creada")
 
 
-def search_movies(query, n_results=5):
+# ==========================
+# SEARCH
+# ==========================
 
-    embedding = get_embedding(query)
+def search_movies(
+    query,
+    n_results=5
+):
+
+    # Si está vacía,
+    # la construye sola
+    count = collection.count()
+
+    if count == 0:
+
+        print(
+            "⚠️ Chroma vacía. "
+            "Creando colección..."
+        )
+
+        build_chroma_collection()
+
+    embedding = get_embedding(
+        query
+    )
 
     results = collection.query(
-        query_embeddings=[embedding],
+        query_embeddings=[
+            embedding
+        ],
         n_results=n_results
     )
 
