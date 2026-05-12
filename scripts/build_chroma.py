@@ -1,0 +1,3 @@
+from services.chroma_service import build_chroma_collection
+
+build_chroma_collection()

@@ -1,0 +1,35 @@
+# Virtual env
+venv/
+venv_tmdb/
+
+# Environment variables
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Databases
+*.db
+*.sqlite3
+
+# Vector DB
+chroma_db/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Testing
+.pytest_cache/
+
+# Build
+build/
+dist/
