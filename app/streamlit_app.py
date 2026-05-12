@@ -249,7 +249,7 @@ if st.button("Buscar semánticamente"):
     results = search_movies(
         semantic_query
     )
-    st.write(results)  # DEBUG
+    
     st.subheader(
         "🎬 Resultados"
     )
