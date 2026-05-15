@@ -2,7 +2,7 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
-
+from services.security_service import (sanitize_input)
 load_dotenv()
 
 import time
@@ -258,8 +258,20 @@ semantic_query = st.text_input(
 
 if st.button("Buscar semánticamente"):
 
+    safe_query = sanitize_input(
+    semantic_query
+)
+
+if not safe_query:
+
+    st.error(
+        "Entrada inválida."
+    )
+
+    st.stop()
+
     results = search_movies(
-        semantic_query
+    safe_query
     )
     
     st.subheader(
@@ -330,13 +342,25 @@ rag_query = st.text_input(
 
 if st.button("Consultar AI"):
 
-    with st.spinner("Pensando..."):
+    with st.spinner("Pensando..."): #aca
+
+        safe_query = sanitize_input(
+             rag_query
+            )
+
+        if not safe_query:
+
+            st.error(
+                "Entrada inválida."
+            )
+
+            st.stop()
 
         response = rag_movie_search(
-            rag_query
-        )
+            safe_query
+            )
 
-    st.subheader("🎬 Respuesta AI")
+    st.subheader("🎬 Respuesta AI")# yano
 
     st.write(response)
 
@@ -348,13 +372,27 @@ agent_query = st.text_input(
     "Preguntale cualquier cosa al agente y continua charlando con él"
 )
 
-if st.button("Consultar agente"):
+if st.button("Consultar agente"):#
 
-    with st.spinner("El agente está pensando..."):
+    with st.spinner("El agente está pensando..."): ##
 
-        response = ask_agent(agent_query)
+        safe_query = sanitize_input(
+                    agent_query
+                )
 
-    st.subheader("🎬 Respuesta del Agente")
+        if not safe_query:
+
+                    st.error(
+                        "Entrada inválida."
+                        )
+
+                    st.stop()
+
+        response = ask_agent(
+            safe_query
+        )
+
+    st.subheader("🎬 Respuesta del Agente") ##
 
     st.write(response)
 
