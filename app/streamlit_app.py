@@ -1,11 +1,60 @@
-
 import streamlit as st
 import os
+import sys
+import time
+
+from pathlib import Path
 from dotenv import load_dotenv
-from services.security_service import (sanitize_input)
+
+# =========================================
+# PATH ROOT PROJECT
+# =========================================
+
+sys.path.append(
+    str(Path(__file__).resolve().parent.parent)
+)
+
+# =========================================
+# LOAD ENV
+# =========================================
+
 load_dotenv()
 
-import time
+# =========================================
+# SERVICES
+# =========================================
+
+from services.security_service import sanitize_input
+
+from services.rag_service import (
+    rag_movie_search
+)
+
+from services.agent_service import (
+    ask_agent
+)
+
+from services.tmdb_client import (
+    search_movie,
+    get_movie_recommendations
+)
+
+from services.llm_service import (
+    ask_movie_expert
+)
+
+from services.memory_manager import (
+    add_favorite_movie,
+    load_memory
+)
+
+from services.chroma_service import (
+    search_movies
+)
+
+# =========================================
+# RATE LIMIT SIMPLE
+# =========================================
 
 if "last_request" not in st.session_state:
     st.session_state.last_request = 0
@@ -17,6 +66,10 @@ if current_time - st.session_state.last_request < 5:
     st.stop()
 
 st.session_state.last_request = current_time
+
+# =========================================
+# SECRETS
+# =========================================
 
 def get_secret(key):
 
@@ -34,31 +87,7 @@ TMDB_API_KEY = get_secret(
 OPENAI_API_KEY = get_secret(
     "OPENAI_API_KEY"
 )
-import sys
-from pathlib import Path
 
-sys.path.append(
-    str(Path(__file__).resolve().parent.parent)
-)
-
-
-from services.rag_service import rag_movie_search
-from services.agent_service import ask_agent
-
-
-from services.tmdb_client import (
-    search_movie,
-    get_movie_recommendations
-)
-
-from services.llm_service import ask_movie_expert
-
-from services.memory_manager import (
-    add_favorite_movie,
-    load_memory
-)
-
-from services.chroma_service import search_movies
 
 # =========== CSS ===========
 st.markdown("""
@@ -259,26 +288,32 @@ semantic_query = st.text_input(
 if st.button("Buscar semánticamente"):
 
     safe_query = sanitize_input(
-    semantic_query
-)
-
-if not safe_query:
-
-    st.error(
-        "Entrada inválida."
+        semantic_query
     )
 
-    st.stop()
+    if not safe_query:
+
+        st.error(
+            "Entrada inválida."
+        )
+
+        st.stop()
 
     results = search_movies(
-    safe_query
+        safe_query
     )
-    
+
     st.subheader(
         "🎬 Resultados"
     )
 
     movies = results["metadatas"][0]
+
+    if not movies:
+
+        st.warning(
+            "No encontré resultados."
+        )
 
     for movie in movies:
 
