@@ -59,13 +59,26 @@ from services.chroma_service import (
 if "last_request" not in st.session_state:
     st.session_state.last_request = 0
 
-current_time = time.time()
 
-if current_time - st.session_state.last_request < 5:
-    st.warning("Esperá unos segundos.")
-    st.stop()
+def check_rate_limit():
 
-st.session_state.last_request = current_time
+    current_time = time.time()
+
+    if (
+        current_time
+        - st.session_state.last_request
+        < 5
+    ):
+
+        st.warning(
+            "Esperá unos segundos."
+        )
+
+        st.stop()
+
+    st.session_state.last_request = (
+        current_time
+    )
 
 # =========================================
 # SECRETS
@@ -287,6 +300,8 @@ semantic_query = st.text_input(
 
 if st.button("Buscar semánticamente"):
 
+    check_rate_limit()
+
     safe_query = sanitize_input(
         semantic_query
     )
@@ -377,6 +392,8 @@ rag_query = st.text_input(
 
 if st.button("Consultar AI"):
 
+    check_rate_limit()
+
     with st.spinner("Pensando..."): #aca
 
         safe_query = sanitize_input(
@@ -408,6 +425,8 @@ agent_query = st.text_input(
 )
 
 if st.button("Consultar agente"):#
+
+    check_rate_limit()
 
     with st.spinner("El agente está pensando..."): ##
 
