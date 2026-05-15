@@ -5,6 +5,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import time
+
+if "last_request" not in st.session_state:
+    st.session_state.last_request = 0
+
+current_time = time.time()
+
+if current_time - st.session_state.last_request < 5:
+    st.warning("Esperá unos segundos.")
+    st.stop()
+
+st.session_state.last_request = current_time
 
 def get_secret(key):
 
